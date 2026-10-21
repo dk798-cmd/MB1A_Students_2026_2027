@@ -1,0 +1,47 @@
+---
+title: "Practical exercises"
+author: "Damyan"
+format: html
+---
+
+this function rounds a number to the nearest number of digits specified
+```{r}
+round(3.14159, digits = 2)
+```
+the seq function generates a sequence of numbers where 'from' is the start, 'to' i the end, and 'by' is the increment.
+```{r}
+seq(1, 10, 2)
+```
+here we have counted from 1 to 10 by 2 (and so don't reach 10)
+
+rep can be used to repeat a (value, times)
+```{r}
+rep(2, 5)
+```
+
+In R variable names can't start with a number. Variables can assume three types, those being numeric, character and logical.
+```{r}
+x <- 1.74
+y <- "hello"
+z <- TRUE
+print(paste(x, y, z))
+print(class(x))
+print(class(y))
+print(class(z))
+```
+
+To document treatment with radiation
+```{r}
+cell_id_1 <- "C1"
+cell_id_2 <- "C2"
+
+treated_1 <- TRUE
+treated_2 <- FALSE
+
+n_before_1 <- 7540
+n_before_2 <- 8225
+
+n_after_1 <- 1459
+n_after_2 <- 7425
+```
+

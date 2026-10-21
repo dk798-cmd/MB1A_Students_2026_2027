@@ -1,0 +1,27 @@
+---
+title: "Brain data project"
+author: "Damyan"
+format: html
+---
+
+Here are the comparisons of regional elevations of gene expressions between different mammalian fore-brains
+
+Humans
+
+```{r}
+sum(180, 83, 57, 110)
+```
+
+Pigs
+
+```{r}
+sum(109, 157, 31, 45)
+```
+
+Mice
+
+```{r}
+sum(55, 185, 60, 98)
+```
+
+The highest number of elevated expressed genes occurred in humans (430)
