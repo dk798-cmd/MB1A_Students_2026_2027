@@ -1,0 +1,205 @@
+---
+title: "worked example"
+author: "Damyan Korada"
+---
+
+```{r}
+library(gt)
+library(tidyverse)
+library(maps)
+
+sites <- read_csv("data/breeding_site_locations.csv")
+
+bird_breeding_selected <- sites |>
+  select(Site, Longitude, Latitude) |>
+  distinct() |>
+  rename(Breeding_Longitude = Longitude, Breeding_Latitude = Latitude) |>
+  filter(Site != "Spain")
+
+gt(bird_breeding_selected)
+
+#gt(sites)
+#colnames(sites)
+#glimpse(sites)
+#print(nrow(sites)) ##row number
+#print(ncol(sites)) ##column number
+#print(dim(sites)) ##dimensions
+```
+
+```{r}
+library(gt)
+library(tidyverse)
+library(maps)
+
+connectivity <- read_csv("data/migratory_connectivity_dataset.csv")
+
+migration_sites <- connectivity |>
+  select(Site, winterLongitude, winterLatitude, pslon, pslat, iblon, iblat, awestlon, awestlat) |>
+  distinct() |>
+  rename(Winter_Longitude = winterLongitude,
+    Winter_Latitude = winterLatitude,
+    Stopover_Longitude = pslon,
+    Stopover_Latitude = pslat,
+    Iberian_Longitude = iblon,
+    Iberian_Latitude = iblat,
+    Westmost_Longitude = awestlon,
+    Westmost_Latitude = awestlat) |>
+  filter(Site != "Spain") |>
+  group_by(Site)
+
+gt(migration_sites)
+glimpse(migration_sites)
+
+
+bird_migration_summary <- migration_sites |>
+  group_by(Site) |>
+  summarise(
+    across(
+      c(
+        Stopover_Longitude, Stopover_Latitude,
+        Iberian_Longitude, Iberian_Latitude,
+        Westmost_Longitude, Westmost_Latitude,
+        Winter_Longitude, Winter_Latitude
+      ),
+      ~ median(.x, na.rm = TRUE)
+    )
+  )
+
+gt(bird_migration_summary)
+```
+
+```{r}
+my_numbers <- c(2, 4, 6, 8)
+
+print(my_numbers |>
+  sum() |>
+  sqrt() |>
+  round())
+
+my_numbers <- c(2, 4, 6, 8)
+
+my_result <- my_numbers |>
+  sum() |>
+  sqrt() |>
+  round()
+
+print(my_result)
+```
+
+```{r}
+library(gt)
+library(tidyverse)
+library(maps)
+
+combined_bird_data <- full_join(bird_breeding_selected, bird_migration_summary)
+
+combined_bird_piv <- combined_bird_data |>
+  pivot_longer(
+    cols = ends_with(c("_Longitude", "_Latitude")),
+    names_sep = "_",
+    names_to = c("Location_Type", ".value")
+  )
+
+gt(combined_bird_piv)
+
+spring_vals <- c("Breeding", "Stopover", "Winter")
+autumn_vals <- c("Breeding", "Iberian", "Westmost", "Winter")
+
+spring_data <- combined_bird_piv |>
+  filter(Location_Type %in% spring_vals)
+
+autumn_data <- combined_bird_piv |>
+  filter(Location_Type %in% autumn_vals)
+
+write_csv(spring_data, "output/birds_spring.csv")
+write_csv(autumn_data, "output/birds_autumn.csv")
+
+```
+```{r}
+library(gt)
+library(tidyverse)
+library(maps)
+
+min_lon <- spring_data |>
+  pull(Longitude) |>
+  min()
+max_lon <- spring_data |>
+  pull(Longitude) |>
+  max()
+min_lat <- spring_data |>
+  pull(Latitude) |>
+  min()
+max_lat <- spring_data |>
+  pull(Latitude) |>
+  max()
+
+
+ggplot(
+  spring_data,
+  aes(x = Longitude, y = Latitude, colour = Site, shape = Location_Type)
+) +
+  geom_point(size=3) +
+  annotation_borders(linewidth = 0.2) +
+  coord_quickmap(
+    xlim = c(min_lon - 2, max_lon + 2),
+    ylim = c(min_lat - 2, max_lat + 2)
+    ) +
+  geom_path(aes(group = Site), linewidth = 0.5) +
+  ggtitle("Pied Flycatcher Spring Migration Routes") +
+  xlab("Longitude (°)") +
+  ylab("Latitude (°)") +
+  theme_minimal()
+```
+
+```{r}
+library(gt)
+library(tidyverse)
+library(maps)
+
+min_lon <- autumn_data |>
+  pull(Longitude) |>
+  min()
+max_lon <- autumn_data |>
+  pull(Longitude) |>
+  max()
+min_lat <- autumn_data |>
+  pull(Latitude) |>
+  min()
+max_lat <- autumn_data |>
+  pull(Latitude) |>
+  max()
+
+
+ggplot(
+  autumn_data,
+  aes(x = Longitude, y = Latitude, colour = Site, shape = Location_Type)
+) +
+  geom_point(size=3) +
+  annotation_borders(linewidth = 0.2) +
+  coord_quickmap(
+    xlim = c(min_lon - 2, max_lon + 2),
+    ylim = c(min_lat - 2, max_lat + 2)
+    ) +
+  geom_path(aes(group = Site), linewidth = 0.7) +
+  scale_color_brewer(palette = "Dark2") +
+  ggtitle("Pied Flycatcher Spring Migration Routes") +
+  xlab("Longitude (°)") +
+  ylab("Latitude (°)") +
+  theme_minimal()
+```
+
+
+```{r}
+birds <- tibble(
+  Bird = c("Robin", "Robin", "Blackbird"),
+  Mass = c(18, 19, 100)
+)
+
+observations <- tibble(
+  Bird = c("Robin", "Robin", "Robin", "Blackbird"),
+  Count = c(4, 7, 2, 5)
+)
+
+inner_join(birds, observations, by = "Bird")
+```
+

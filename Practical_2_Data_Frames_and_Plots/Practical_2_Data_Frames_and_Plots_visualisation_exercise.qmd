@@ -1,0 +1,59 @@
+---
+title: "Visualisation exercise"
+author: "Damyan Korada"
+---
+
+```{r}
+library(tidyverse)
+library(gt)
+library(janitor)
+library(lubridate)
+
+
+
+locations <- read_csv("data/movebank_data.csv.csv") |>
+  mutate(date = as_date(timestamp)) |>
+  clean_names() |>
+  select(
+  timestamp,
+  event_id,
+  location_long, location_lat
+) |>
+  group_by(timestamp, event_id) |>
+  summarise(
+    Longitude = median(location_long, na.rm = TRUE),
+    Latitude = median(location_lat, na.rm = TRUE)
+  )
+
+gt(head(locations))
+
+min_lon <- locations |>
+  pull(Longitude) |>
+  min()
+max_lon <- locations |>
+  pull(Longitude) |>
+  max()
+min_lat <- locations |>
+  pull(Latitude) |>
+  min()
+max_lat <- locations |>
+  pull(Latitude) |>
+  max()
+
+
+ggplot(
+  locations,
+  aes(x = Longitude, y = Latitude, colour = timestamp)
+) +
+  geom_point(size=3) +
+  annotation_borders(linewidth = 0.4) +
+  coord_quickmap(
+    xlim = c(min_lon - 2, max_lon + 2),
+    ylim = c(min_lat - 2, max_lat + 2)
+    ) +
+  ggtitle("Cuculus canorus migration") +
+  xlab("Longitude (°)") +
+  ylab("Latitude (°)") +
+  theme_minimal()
+```
+
